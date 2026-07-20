@@ -1,0 +1,24 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "All rights reserved"
+
+[[mods]]
+modId = "bedcoords"
+version = "${version}"
+displayName = "Bed Coords"
+authors = "VonKen"
+description = "Shows your bed/respawn coordinates in the top-right corner"
+
+[[dependencies.bedcoords]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21,1.21.1]"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.bedcoords]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neo_version},)"
+ordering = "NONE"
+side = "BOTH"

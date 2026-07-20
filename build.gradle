@@ -1,0 +1,53 @@
+plugins {
+    id "java-library"
+    id "net.neoforged.gradle.userdev" version "${neo_gradle_plugin}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+base {
+    archivesName = "bedcoords"
+}
+
+group = "com.bedcoords"
+version = "1.0.0"
+
+repositories {
+    mavenCentral()
+    maven { url = "https://maven.neoforged.net/releases" }
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+}
+
+tasks.named("processResources") {
+    inputs.properties(
+            "version": project.version,
+            "neo_version": project.neo_version,
+            "minecraft_version": project.minecraft_version
+    )
+    filesMatching(["META-INF/neoforge.mods.toml", "pack.mcmeta"]) {
+        expand(inputs.properties)
+    }
+}
+
+tasks.named("jar") {
+    manifest {
+        attributes(
+                "Specification-Title": "bedcoords",
+                "Specification-Vendor": "VonKen",
+                "Specification-Version": "1",
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Implementation-Vendor": "VonKen"
+        )
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 21
+}
