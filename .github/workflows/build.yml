@@ -20,3 +20,7 @@ jobs:
       - run: ./gradlew build --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BedCoords
+          path: build/libs/*.jar
