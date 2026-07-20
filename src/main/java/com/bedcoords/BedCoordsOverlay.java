@@ -1,9 +1,7 @@
 package com.bedcoords;
 
+import com.bedcoords.mixin.PlayerAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 
 public class BedCoordsOverlay {
@@ -13,11 +11,12 @@ public class BedCoordsOverlay {
 
         var font = mc.font;
         var guiGraphics = event.getGuiGraphics();
-        String text;
+        var accessor = (PlayerAccessor) mc.player;
 
-        BlockPos pos = mc.player.getRespawnPosition();
-        ResourceKey<Level> dim = mc.player.getRespawnDimension();
+        var pos = accessor.bedcoords$getRespawnPosition();
+        String text;
         if (pos != null) {
+            var dim = accessor.bedcoords$getRespawnDimension();
             var dimName = dim.location().toShortLanguageKey();
             text = String.format("Bed [%s] %d, %d, %d", dimName, pos.getX(), pos.getY(), pos.getZ());
         } else {
