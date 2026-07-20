@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,16 +17,17 @@ import java.util.Map;
 public class WaypointStore {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path FILE_PATH = Path.of("config", "bedcoords", "waypoints.json");
+    private static final Type MAP_TYPE = new TypeToken<Map<String, List<Waypoint>>>() {}.getType();
     private static final Map<String, List<Waypoint>> STORE = new HashMap<>();
 
     public static void load() {
         try {
             if (Files.exists(FILE_PATH)) {
                 var content = Files.readString(FILE_PATH);
-                var map = GSON.fromJson(content, new TypeToken<Map<String, List<Waypoint>>>() {}.getType());
-                if (map != null) {
+                Map<String, List<Waypoint>> loaded = GSON.fromJson(content, MAP_TYPE);
+                if (loaded != null) {
                     STORE.clear();
-                    STORE.putAll(map);
+                    STORE.putAll(loaded);
                     return;
                 }
             }

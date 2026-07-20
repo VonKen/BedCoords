@@ -4,12 +4,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.event.tick.ClientTickEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
-import java.util.List;
 
 public class BedCoordsOverlay {
     public static final KeyMapping ADD_WAYPOINT = new KeyMapping(
@@ -25,10 +22,9 @@ public class BedCoordsOverlay {
     private static boolean showList = false;
     private static int nameCounter = 1;
 
-    public static void onClientTick(ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public static void onRenderGui(RenderGuiLayerEvent.Post event) {
         var mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        if (mc.player == null) return;
 
         while (ADD_WAYPOINT.consumeClick()) {
             addWaypoint(mc);
@@ -39,6 +35,47 @@ public class BedCoordsOverlay {
         while (REMOVE_NEAREST.consumeClick()) {
             removeNearest(mc);
         }
+
+        if (!showList) return;
+
+        var waypoints = WaypointStore.getWaypoints();
+        if (waypoints.isEmpty()) {
+            renderText(event, "No waypoints", 4, 0xFFFFFF);
+            return;
+        }
+
+        var playerPos = mc.player.position();
+        var currentDim = mc.level.dimension().location().toString();
+
+        var sorted = waypoints.stream()
+            .filter(w -> w.dimension().equals(currentDim))
+            .sorted(Comparator.comparingDouble(w -> playerPos.distanceToSqr(w.x(), w.y(), w.z())))
+            .toList();
+
+        int y = 4;
+        int lineHeight = mc.font.lineHeight + 2;
+
+        for (var wp : sorted) {
+            double dx = wp.x() + 0.5 - playerPos.x;
+            double dz = wp.z() + 0.5 - playerPos.z;
+            double dist = Math.sqrt(dx * dx + dz * dz);
+            String text = String.format("%s  %s %.0fm", wp.name(), direction(dx, dz, mc.player.getYRot()), dist);
+            renderText(event, text, y, 0xFFFFFF);
+            y += lineHeight;
+        }
+    }
+
+    private static String direction(double dx, double dz, float yaw) {
+        float angle = (float) (Math.toDegrees(Math.atan2(dz, dx)) + 180);
+        float relative = ((angle - yaw) % 360 + 360) % 360;
+        if (relative < 22.5 || relative >= 337.5) return "↑";
+        if (relative < 67.5) return "↗";
+        if (relative < 112.5) return "→";
+        if (relative < 157.5) return "↘";
+        if (relative < 202.5) return "↓";
+        if (relative < 247.5) return "↙";
+        if (relative < 292.5) return "←";
+        return "↖";
     }
 
     private static void addWaypoint(Minecraft mc) {
@@ -65,60 +102,9 @@ public class BedCoordsOverlay {
         }
     }
 
-    public static void onRenderGui(RenderGuiLayerEvent.Post event) {
-        var mc = Minecraft.getInstance();
-        if (mc.player == null || !showList) return;
-
-        var waypoints = WaypointStore.getWaypoints();
-        if (waypoints.isEmpty()) {
-            renderText(event, "No waypoints", 0xFFFFFF);
-            return;
-        }
-
-        var playerPos = mc.player.position();
-        var currentDim = mc.level.dimension().location().toString();
-
-        var sorted = waypoints.stream()
-            .filter(w -> w.dimension().equals(currentDim))
-            .sorted(Comparator.comparingDouble(w -> w.x() * w.x() + w.z() * w.z()))
-            .toList();
-
-        int y = 4;
-        int lineHeight = mc.font.lineHeight + 2;
-
-        for (var wp : sorted) {
-            double dx = wp.x() + 0.5 - playerPos.x;
-            double dz = wp.z() + 0.5 - playerPos.z;
-            double dist = Math.sqrt(dx * dx + dz * dz);
-            String dir = direction(dx, dz);
-            String text = String.format("%s  %s %.0fm", wp.name(), dir, dist);
-            renderText(event, text, y, 0xFFFFFF);
-            y += lineHeight;
-        }
-    }
-
-    private static String direction(double dx, double dz) {
-        float angle = (float) (Math.atan2(dz, dx) * 180 / Math.PI);
-        var mc = Minecraft.getInstance();
-        if (mc.player == null) return "";
-        float yaw = mc.player.getYRot();
-        float relative = (angle - yaw + 360) % 360;
-        if (relative < 22.5 || relative >= 337.5) return "→";
-        if (relative < 67.5) return "↗";
-        if (relative < 112.5) return "↑";
-        if (relative < 157.5) return "↖";
-        if (relative < 202.5) return "←";
-        if (relative < 247.5) return "↙";
-        if (relative < 292.5) return "↓";
-        return "↘";
-    }
-
-    private static void renderText(RenderGuiLayerEvent.Post event, String text, int color) {
-        renderText(event, text, 4, color);
-    }
-
     private static void renderText(RenderGuiLayerEvent.Post event, String text, int y, int color) {
         var mc = Minecraft.getInstance();
+        if (mc.font == null) return;
         var guiGraphics = event.getGuiGraphics();
         int x = 4;
         int textWidth = mc.font.width(text);
