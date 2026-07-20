@@ -21,7 +21,6 @@ repositories {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
-    annotationProcessor "org.spongepowered:mixin:0.8.7:processor"
 }
 
 tasks.named("processResources") {
