@@ -1,22 +1,20 @@
 package com.bedcoords;
 
-import com.bedcoords.mixin.PlayerAccessor;
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 
 public class BedCoordsOverlay {
     public static void onRenderGui(RenderGuiLayerEvent.Post event) {
         var mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        if (mc.player == null) return;
 
         var font = mc.font;
         var guiGraphics = event.getGuiGraphics();
-        var accessor = (PlayerAccessor) mc.player;
-
-        var pos = accessor.bedcoords$getRespawnPosition();
         String text;
+
+        var pos = BedCoordsData.respawnPosition;
         if (pos != null) {
-            var dim = accessor.bedcoords$getRespawnDimension();
+            var dim = BedCoordsData.respawnDimension;
             var dimName = dim.location().toShortLanguageKey();
             text = String.format("Bed [%s] %d, %d, %d", dimName, pos.getX(), pos.getY(), pos.getZ());
         } else {

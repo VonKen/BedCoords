@@ -5,7 +5,7 @@
     "compatibilityLevel": "JAVA_21",
     "refmap": "bedcoords.refmap.json",
     "client": [
-        "PlayerAccessor"
+        "LoginMixin"
     ],
     "injectors": {
         "defaultRequire": 1
