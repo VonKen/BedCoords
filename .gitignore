@@ -1,0 +1,6 @@
+.gradle/
+build/
+*.jar
+run/
+out/
+.gradle/
