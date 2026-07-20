@@ -1,18 +1,15 @@
 package com.bedcoords;
 
 import net.minecraft.client.Minecraft;
-import net.neoforged.neoforge.client.gui.overlay.ExtendedGui;
-import net.neoforged.neoforge.client.gui.overlay.IGuiOverlay;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 
-public class BedCoordsOverlay implements IGuiOverlay {
-    private static final int COLOR = 0xFFFFFFFF;
-
-    @Override
-    public void render(ExtendedGui gui, net.minecraft.client.gui.GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+public class BedCoordsOverlay {
+    public static void onRenderGui(RenderGuiLayerEvent.Post event) {
         var mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
         var font = mc.font;
+        var guiGraphics = event.getGuiGraphics();
         var spawn = mc.player.getRespawnPosition();
 
         String text;
@@ -25,11 +22,12 @@ public class BedCoordsOverlay implements IGuiOverlay {
             text = "No bed set";
         }
 
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
         int textWidth = font.width(text);
         int x = screenWidth - textWidth - 4;
         int y = 4;
 
         guiGraphics.fill(x - 1, y - 1, x + textWidth + 1, y + font.lineHeight + 1, 0xAA000000);
-        guiGraphics.drawString(font, text, x, y, COLOR, false);
+        guiGraphics.drawString(font, text, x, y, 0xFFFFFFFF, false);
     }
 }
