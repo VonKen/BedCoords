@@ -5,9 +5,9 @@ license = "All rights reserved"
 [[mods]]
 modId = "bedcoords"
 version = "${version}"
-displayName = "Bed Coords"
+displayName = "Waypoints"
 authors = "VonKen"
-description = "Shows your bed/respawn coordinates in the top-right corner"
+description = "Lightweight waypoint mod with in-world markers"
 
 [[dependencies.bedcoords]]
 modId = "minecraft"

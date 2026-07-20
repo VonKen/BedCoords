@@ -1,0 +1,6 @@
+{
+  "key.categories.bedcoords": "Waypoints",
+  "key.bedcoords.add_waypoint": "Add Waypoint",
+  "key.bedcoords.toggle_list": "Toggle Waypoint List",
+  "key.bedcoords.remove_nearest": "Remove Nearest Waypoint"
+}
